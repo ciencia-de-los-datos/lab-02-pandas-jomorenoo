@@ -7,6 +7,7 @@ Este archivo contiene las preguntas que se van a realizar en el laboratorio.
 Utilice los archivos `tbl0.tsv`, `tbl1.tsv` y `tbl2.tsv`, para resolver las preguntas.
 
 """
+
 import pandas as pd
 
 tbl0 = pd.read_csv("tbl0.tsv", sep="\t")
@@ -22,7 +23,8 @@ def pregunta_01():
     40
 
     """
-    return
+    cant_filas_tbl0 = tbl0.shape[0]
+    return cant_filas_tbl0
 
 
 def pregunta_02():
@@ -33,7 +35,8 @@ def pregunta_02():
     4
 
     """
-    return
+    cant_column_tlb0 = tbl0.shape[1]
+    return cant_column_tlb0
 
 
 def pregunta_03():
@@ -50,7 +53,8 @@ def pregunta_03():
     Name: _c1, dtype: int64
 
     """
-    return
+    cant_letra_c1 = tbl0["_c1"].value_counts().sort_index()
+    return cant_letra_c1
 
 
 def pregunta_04():
@@ -65,7 +69,8 @@ def pregunta_04():
     E    4.785714
     Name: _c2, dtype: float64
     """
-    return
+    prom_c2 = tbl0.groupby("_c1")["_c2"].mean()
+    return prom_c2
 
 
 def pregunta_05():
@@ -82,7 +87,8 @@ def pregunta_05():
     E    9
     Name: _c2, dtype: int64
     """
-    return
+    max_value = tbl0.groupby("_c1")["_c2"].max()
+    return max_value
 
 
 def pregunta_06():
@@ -94,7 +100,8 @@ def pregunta_06():
     ['A', 'B', 'C', 'D', 'E', 'F', 'G']
 
     """
-    return
+    lis = sorted(tbl1["_c4"].str.upper().unique())
+    return lis
 
 
 def pregunta_07():
@@ -110,7 +117,8 @@ def pregunta_07():
     E    67
     Name: _c2, dtype: int64
     """
-    return
+    suma_c2 = tbl0.groupby("_c1")["_c2"].sum()
+    return suma_c2
 
 
 def pregunta_08():
@@ -128,7 +136,8 @@ def pregunta_08():
     39   39   E    5  1998-01-26    44
 
     """
-    return
+    column_sum = tbl0["_c0"] + tbl0["_c2"]
+    return column_sum
 
 
 def pregunta_09():
@@ -146,7 +155,8 @@ def pregunta_09():
     39   39   E    5  1998-01-26  1998
 
     """
-    return
+    tbl0["year"] = tbl0["_c3"].apply(lambda x: x.split("-")[0])
+    return tbl0
 
 
 def pregunta_10():
@@ -163,7 +173,14 @@ def pregunta_10():
     3   D                  1:2:3:5:5:7
     4   E  1:1:2:3:3:4:5:5:5:6:7:8:8:9
     """
-    return
+    tabla_c1 = (
+        tbl0.groupby("_c1")["_c2"]
+        .apply(lambda x: ":".join(map(str, sorted(x))))
+        .reset_index()
+    )
+    tabla_c1 = tabla_c1.set_index("_c1")
+    tabla_c1.columns = ["_c2"]
+    return tabla_c1
 
 
 def pregunta_11():
@@ -182,7 +199,12 @@ def pregunta_11():
     38   38      d,e
     39   39    a,d,f
     """
-    return
+    agroup = (
+        tbl1.groupby("_c0")["_c4"]
+        .apply(lambda x: ",".join(sorted(set(x))))
+        .reset_index()
+    )
+    return agroup
 
 
 def pregunta_12():
@@ -200,7 +222,12 @@ def pregunta_12():
     38   38                    eee:0,fff:9,iii:2
     39   39                    ggg:3,hhh:8,jjj:5
     """
-    return
+    tbl2["_c5"] = tbl2["_c5a"] + ":" + tbl2["_c5b"].astype(str)
+    agroups = (
+        tbl2.groupby("_c0")["_c5"].apply(lambda x: ",".join(sorted(x))).reset_index()
+    )
+    agrupados_columns = ["_c0", "_c5"]
+    return agroups
 
 
 def pregunta_13():
@@ -217,4 +244,8 @@ def pregunta_13():
     E    275
     Name: _c5b, dtype: int64
     """
-    return
+    suma_c0 = tbl2.groupby("_c0")["_c5b"].sum().reset_index()
+    suma_c1 = (
+        tbl0.merge(suma_c0, left_on="_c0", right_on="_c0").groupby("_c1")["_c5b"].sum()
+    )
+    return suma_c1
